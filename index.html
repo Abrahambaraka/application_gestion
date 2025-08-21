@@ -349,10 +349,92 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Styles pour la modale */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0s, opacity 0.3s ease-in-out;
+        }
+
+        .modal-overlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+        
+        .modal-content h3 {
+            margin-bottom: 1rem;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--light-gray);
+            border-radius: 5px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .modal-buttons .btn {
+            padding: 0.75rem 1.5rem;
+        }
+        
+        /* Styles pour la modale de confirmation */
+        .confirm-modal .modal-content {
+            text-align: center;
+        }
+        .confirm-modal .modal-buttons {
+            justify-content: center;
+        }
     </style>
 </head>
 <body>
     <div class="app-container">
+        <!-- Sidebar -->
         <div class="sidebar">
             <div class="logo">
                 <h1><i class="fas fa-users"></i> RH Manager</h1>
@@ -376,6 +458,7 @@
             </div>
         </div>
         
+        <!-- Main Content -->
         <div class="main-content">
             <div class="header">
                 <h2>Tableau de Bord</h2>
@@ -384,6 +467,7 @@
                 </div>
             </div>
             
+            <!-- Stats Overview -->
             <div class="stats-container">
                 <div class="stat-card">
                     <div class="stat-icon" style="background-color: rgba(67, 97, 238, 0.1); color: var(--primary);">
@@ -426,6 +510,7 @@
                 </div>
             </div>
             
+            <!-- Employees Table -->
             <div class="card">
                 <div class="card-header">
                     <h3>Liste des Employés</h3>
@@ -435,7 +520,6 @@
                             <select id="department-filter">
                                 <option>Tous</option>
                                 <option>IT</option>
-                                <option>RH</option>
                                 <option>Finance</option>
                                 <option>Marketing</option>
                                 <option>Ressources Humaines</option>
@@ -461,12 +545,14 @@
                                 </tr>
                             </thead>
                             <tbody id="employee-table-body">
-                                </tbody>
+                                <!-- Les lignes seront générées par JavaScript -->
+                            </tbody>
                         </table>
                     </div>
                 </div>
             </div>
             
+            <!-- Leave Requests -->
             <div class="card">
                 <div class="card-header">
                     <h3>Demandes de Congé Récentes</h3>
@@ -485,39 +571,85 @@
                                 </tr>
                             </thead>
                             <tbody id="leave-requests-table-body">
-                                </tbody>
+                                <!-- Les lignes seront générées par JavaScript -->
+                            </tbody>
                         </table>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    
+    <!-- Modal pour les employés -->
+    <div id="employee-modal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <h3 id="modal-title"></h3>
+            <div id="modal-body">
+                <!-- Formulaire d'ajout/édition -->
+                <form id="employee-form">
+                    <input type="hidden" id="employee-id">
+                    <div class="form-group">
+                        <label for="name">Nom & Prénom</label>
+                        <input type="text" id="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="position">Poste</label>
+                        <input type="text" id="position" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="department">Département</label>
+                        <select id="department" required>
+                            <option value="IT">IT</option>
+                            <option value="Finance">Finance</option>
+                            <option value="Marketing">Marketing</option>
+                            <option value="Ressources Humaines">Ressources Humaines</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="seniority">Ancienneté (ans)</label>
+                        <input type="number" id="seniority" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="status">Statut</label>
+                        <select id="status" required>
+                            <option value="Présent">Présent</option>
+                            <option value="Absent">Absent</option>
+                            <option value="En congé">En congé</option>
+                        </select>
+                    </div>
+                    <div class="modal-buttons">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal()">Annuler</button>
+                        <button type="submit" class="btn btn-primary" id="save-employee-btn">Sauvegarder</button>
+                    </div>
+                </form>
 
-    <script>
-        // Simple interactivity for demonstration
-        document.addEventListener('DOMContentLoaded', function() {
-            // Highlight active nav link on click
-            const navLinks = document.querySelectorAll('.nav-links a');
-            navLinks.forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    navLinks.forEach(l => l.classList.remove('active'));
-                    this.classList.add('active');
-                });
-            });
-            
-            // Add hover effect to table rows
-            const tableRows = document.querySelectorAll('table tr');
-            tableRows.forEach(row => {
-                row.addEventListener('mouseenter', function() {
-                    this.style.backgroundColor = '#f8f9fa';
-                });
-                row.addEventListener('mouseleave', function() {
-                    this.style.backgroundColor = '';
-                });
-            });
-        });
-    </script>
+                <!-- Détails de l'employé (affichage) -->
+                <div id="employee-details" style="display: none;">
+                    <p><strong>Nom :</strong> <span id="detail-name"></span></p>
+                    <p><strong>Poste :</strong> <span id="detail-position"></span></p>
+                    <p><strong>Département :</strong> <span id="detail-department"></span></p>
+                    <p><strong>Ancienneté :</strong> <span id="detail-seniority"></span> ans</p>
+                    <p><strong>Statut :</strong> <span id="detail-status"></span></p>
+                    <div class="modal-buttons">
+                        <button class="btn btn-primary" onclick="closeModal()">Fermer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modale de confirmation personnalisée -->
+    <div id="custom-confirm-modal" class="modal-overlay confirm-modal">
+        <div class="modal-content">
+            <h3 id="confirm-message"></h3>
+            <div class="modal-buttons">
+                <button class="btn btn-danger" onclick="handleConfirm(false)">Annuler</button>
+                <button class="btn btn-success" onclick="handleConfirm(true)">Confirmer</button>
+            </div>
+        </div>
+    </div>
+
     <script src="app.js"></script>
 </body>
 </html>
