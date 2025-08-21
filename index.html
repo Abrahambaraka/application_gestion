@@ -353,7 +353,6 @@
 </head>
 <body>
     <div class="app-container">
-        <!-- Sidebar -->
         <div class="sidebar">
             <div class="logo">
                 <h1><i class="fas fa-users"></i> RH Manager</h1>
@@ -377,23 +376,21 @@
             </div>
         </div>
         
-        <!-- Main Content -->
         <div class="main-content">
             <div class="header">
                 <h2>Tableau de Bord</h2>
                 <div>
-                    <button class="btn btn-primary"><i class="fas fa-plus"></i> Nouvel Employé</button>
+                    <button class="btn btn-primary" id="new-employee-btn"><i class="fas fa-plus"></i> Nouvel Employé</button>
                 </div>
             </div>
             
-            <!-- Stats Overview -->
             <div class="stats-container">
                 <div class="stat-card">
                     <div class="stat-icon" style="background-color: rgba(67, 97, 238, 0.1); color: var(--primary);">
                         <i class="fas fa-user-tie"></i>
                     </div>
                     <div class="stat-content">
-                        <h3>42</h3>
+                        <h3 id="active-employees-stat"></h3>
                         <p>Employés Actifs</p>
                     </div>
                 </div>
@@ -403,7 +400,7 @@
                         <i class="fas fa-calendar-check"></i>
                     </div>
                     <div class="stat-content">
-                        <h3>38</h3>
+                        <h3 id="present-employees-stat"></h3>
                         <p>Présents Aujourd'hui</p>
                     </div>
                 </div>
@@ -413,7 +410,7 @@
                         <i class="fas fa-calendar-alt"></i>
                     </div>
                     <div class="stat-content">
-                        <h3>7</h3>
+                        <h3 id="leave-requests-stat"></h3>
                         <p>Demandes de Congé</p>
                     </div>
                 </div>
@@ -423,30 +420,30 @@
                         <i class="fas fa-money-check-alt"></i>
                     </div>
                     <div class="stat-content">
-                        <h3>€142,580</h3>
+                        <h3 id="payroll-stat"></h3>
                         <p>Masse Salariale Mensuelle</p>
                     </div>
                 </div>
             </div>
             
-            <!-- Employees Table -->
             <div class="card">
                 <div class="card-header">
                     <h3>Liste des Employés</h3>
                     <div class="filters">
                         <div class="filter-item">
                             <label>Département</label>
-                            <select>
+                            <select id="department-filter">
                                 <option>Tous</option>
                                 <option>IT</option>
                                 <option>RH</option>
                                 <option>Finance</option>
                                 <option>Marketing</option>
+                                <option>Ressources Humaines</option>
                             </select>
                         </div>
                         <div class="filter-item">
                             <label>Recherche</label>
-                            <input type="text" placeholder="Nom de l'employé">
+                            <input type="text" id="search-input" placeholder="Nom de l'employé">
                         </div>
                     </div>
                 </div>
@@ -463,74 +460,13 @@
                                     <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Marie Dupont</td>
-                                    <td>Développeuse Frontend</td>
-                                    <td>IT</td>
-                                    <td>3 ans</td>
-                                    <td><span class="status-badge status-present">Présent</span></td>
-                                    <td>
-                                        <button class="btn btn-primary btn-sm"><i class="fas fa-eye"></i></button>
-                                        <button class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>
-                                        <button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Pierre Martin</td>
-                                    <td>Responsable RH</td>
-                                    <td>Ressources Humaines</td>
-                                    <td>5 ans</td>
-                                    <td><span class="status-badge status-absent">Absent</span></td>
-                                    <td>
-                                        <button class="btn btn-primary btn-sm"><i class="fas fa-eye"></i></button>
-                                        <button class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>
-                                        <button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Sophie Lambert</td>
-                                    <td>Comptable</td>
-                                    <td>Finance</td>
-                                    <td>2 ans</td>
-                                    <td><span class="status-badge status-present">Présent</span></td>
-                                    <td>
-                                        <button class="btn btn-primary btn-sm"><i class="fas fa-eye"></i></button>
-                                        <button class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>
-                                        <button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Thomas Bernard</td>
-                                    <td>Chef de Projet</td>
-                                    <td>IT</td>
-                                    <td>4 ans</td>
-                                    <td><span class="status-badge status-present">Présent</span></td>
-                                    <td>
-                                        <button class="btn btn-primary btn-sm"><i class="fas fa-eye"></i></button>
-                                        <button class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>
-                                        <button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Julie Petit</td>
-                                    <td>Responsable Marketing</td>
-                                    <td>Marketing</td>
-                                    <td>6 ans</td>
-                                    <td><span class="status-badge status-absent">En congé</span></td>
-                                    <td>
-                                        <button class="btn btn-primary btn-sm"><i class="fas fa-eye"></i></button>
-                                        <button class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>
-                                        <button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
-                                    </td>
-                                </tr>
-                            </tbody>
+                            <tbody id="employee-table-body">
+                                </tbody>
                         </table>
                     </div>
                 </div>
             </div>
             
-            <!-- Leave Requests -->
             <div class="card">
                 <div class="card-header">
                     <h3>Demandes de Congé Récentes</h3>
@@ -548,40 +484,8 @@
                                     <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Pierre Martin</td>
-                                    <td>Congé annuel</td>
-                                    <td>15/07/2023</td>
-                                    <td>30/07/2023</td>
-                                    <td><span class="status-badge status-pending">En attente</span></td>
-                                    <td>
-                                        <button class="btn btn-success btn-sm"><i class="fas fa-check"></i></button>
-                                        <button class="btn btn-danger btn-sm"><i class="fas fa-times"></i></button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Sophie Lambert</td>
-                                    <td>Congé maladie</td>
-                                    <td>10/07/2023</td>
-                                    <td>12/07/2023</td>
-                                    <td><span class="status-badge status-approved">Approuvé</span></td>
-                                    <td>
-                                        <button class="btn btn-primary btn-sm"><i class="fas fa-eye"></i></button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Thomas Bernard</td>
-                                    <td>Congé sans solde</td>
-                                    <td>20/07/2023</td>
-                                    <td>25/07/2023</td>
-                                    <td><span class="status-badge status-pending">En attente</span></td>
-                                    <td>
-                                        <button class="btn btn-success btn-sm"><i class="fas fa-check"></i></button>
-                                        <button class="btn btn-danger btn-sm"><i class="fas fa-times"></i></button>
-                                    </td>
-                                </tr>
-                            </tbody>
+                            <tbody id="leave-requests-table-body">
+                                </tbody>
                         </table>
                     </div>
                 </div>
@@ -614,5 +518,6 @@
             });
         });
     </script>
+    <script src="app.js"></script>
 </body>
 </html>
