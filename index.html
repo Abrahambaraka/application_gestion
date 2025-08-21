@@ -149,6 +149,12 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
             display: flex;
             align-items: center;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
         
         .stat-icon {
@@ -316,6 +322,17 @@
             border: 1px solid var(--light-gray);
             border-radius: 6px;
             background-color: white;
+            transition: border-color 0.3s;
+        }
+
+        .filter-item input:focus, .filter-item select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        /* Styles pour masquer les pages non actives */
+        .page-content:not(.active) {
+            display: none;
         }
         
         @media (max-width: 992px) {
@@ -380,6 +397,12 @@
             max-width: 500px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
             position: relative;
+            transform: scale(0.95);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
         }
         
         .modal-content h3 {
@@ -393,6 +416,11 @@
             font-size: 1.5rem;
             cursor: pointer;
             color: var(--gray);
+            transition: transform 0.2s;
+        }
+
+        .modal-close:hover {
+            transform: rotate(90deg);
         }
 
         .form-group {
@@ -410,6 +438,12 @@
             padding: 0.75rem;
             border: 1px solid var(--light-gray);
             border-radius: 5px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
         }
 
         .modal-buttons {
@@ -430,6 +464,58 @@
         .confirm-modal .modal-buttons {
             justify-content: center;
         }
+
+        /* Loading spinner for buttons */
+        .btn-loading {
+            position: relative;
+        }
+        .btn-loading .spinner {
+            display: inline-block;
+            width: 1em;
+            height: 1em;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            -webkit-animation: spin 1s ease-in-out infinite;
+        }
+        .btn-loading.btn-primary .spinner {
+             border: 2px solid rgba(255, 255, 255, 0.3);
+             border-top-color: white;
+        }
+        
+        .btn-loading.btn-success .spinner {
+             border: 2px solid rgba(255, 255, 255, 0.3);
+             border-top-color: white;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Message box */
+        #message-box {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        #message-box.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+        }
+
     </style>
 </head>
 <body>
@@ -442,14 +528,14 @@
             </div>
             
             <ul class="nav-links">
-                <li><a href="#" class="active"><i class="fas fa-home"></i> Tableau de bord</a></li>
-                <li><a href="#"><i class="fas fa-user-tie"></i> Employés</a></li>
-                <li><a href="#"><i class="fas fa-chart-line"></i> Performances</a></li>
-                <li><a href="#"><i class="fas fa-calendar-check"></i> Présence</a></li>
-                <li><a href="#"><i class="fas fa-calendar-alt"></i> Congés</a></li>
-                <li><a href="#"><i class="fas fa-money-check-alt"></i> Paie</a></li>
-                <li><a href="#"><i class="fas fa-chart-bar"></i> Rapports</a></li>
-                <li><a href="#"><i class="fas fa-cog"></i> Paramètres</a></li>
+                <li><a href="#" class="active" data-page="dashboard-page"><i class="fas fa-home"></i> Tableau de bord</a></li>
+                <li><a href="#" data-page="employees-page"><i class="fas fa-user-tie"></i> Employés</a></li>
+                <!-- Suppression de la page Performances -->
+                <li><a href="#" data-page="presence-page"><i class="fas fa-calendar-check"></i> Présence</a></li>
+                <li><a href="#" data-page="leave-page"><i class="fas fa-calendar-alt"></i> Congés</a></li>
+                <li><a href="#" data-page="payroll-page"><i class="fas fa-money-check-alt"></i> Paie</a></li>
+                <li><a href="#" data-page="reports-page"><i class="fas fa-chart-bar"></i> Rapports</a></li>
+                <li><a href="#" data-page="settings-page"><i class="fas fa-cog"></i> Paramètres</a></li>
             </ul>
             
             <div class="user-info">
@@ -460,123 +546,221 @@
         
         <!-- Main Content -->
         <div class="main-content">
-            <div class="header">
-                <h2>Tableau de Bord</h2>
-                <div>
-                    <button class="btn btn-primary" id="new-employee-btn"><i class="fas fa-plus"></i> Nouvel Employé</button>
-                </div>
-            </div>
             
-            <!-- Stats Overview -->
-            <div class="stats-container">
-                <div class="stat-card">
-                    <div class="stat-icon" style="background-color: rgba(67, 97, 238, 0.1); color: var(--primary);">
-                        <i class="fas fa-user-tie"></i>
-                    </div>
-                    <div class="stat-content">
-                        <h3 id="active-employees-stat"></h3>
-                        <p>Employés Actifs</p>
+            <!-- Tableau de Bord (page par défaut) -->
+            <div id="dashboard-page" class="page-content active">
+                <div class="header">
+                    <h2>Tableau de Bord</h2>
+                    <div>
+                        <button class="btn btn-primary" id="new-employee-btn"><i class="fas fa-plus"></i> Nouvel Employé</button>
                     </div>
                 </div>
                 
-                <div class="stat-card">
-                    <div class="stat-icon" style="background-color: rgba(76, 201, 240, 0.1); color: var(--success);">
-                        <i class="fas fa-calendar-check"></i>
-                    </div>
-                    <div class="stat-content">
-                        <h3 id="present-employees-stat"></h3>
-                        <p>Présents Aujourd'hui</p>
-                    </div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="stat-icon" style="background-color: rgba(247, 37, 133, 0.1); color: var(--warning);">
-                        <i class="fas fa-calendar-alt"></i>
-                    </div>
-                    <div class="stat-content">
-                        <h3 id="leave-requests-stat"></h3>
-                        <p>Demandes de Congé</p>
-                    </div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="stat-icon" style="background-color: rgba(58, 12, 163, 0.1); color: var(--secondary);">
-                        <i class="fas fa-money-check-alt"></i>
-                    </div>
-                    <div class="stat-content">
-                        <h3 id="payroll-stat"></h3>
-                        <p>Masse Salariale Mensuelle</p>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Employees Table -->
-            <div class="card">
-                <div class="card-header">
-                    <h3>Liste des Employés</h3>
-                    <div class="filters">
-                        <div class="filter-item">
-                            <label>Département</label>
-                            <select id="department-filter">
-                                <option>Tous</option>
-                                <option>IT</option>
-                                <option>Finance</option>
-                                <option>Marketing</option>
-                                <option>Ressources Humaines</option>
-                            </select>
+                <!-- Stats Overview -->
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background-color: rgba(67, 97, 238, 0.1); color: var(--primary);">
+                            <i class="fas fa-user-tie"></i>
                         </div>
-                        <div class="filter-item">
-                            <label>Recherche</label>
-                            <input type="text" id="search-input" placeholder="Nom de l'employé">
+                        <div class="stat-content">
+                            <h3 id="active-employees-stat"></h3>
+                            <p>Employés Actifs</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background-color: rgba(76, 201, 240, 0.1); color: var(--success);">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="present-employees-stat"></h3>
+                            <p>Présents Aujourd'hui</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background-color: rgba(247, 37, 133, 0.1); color: var(--warning);">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="leave-requests-stat"></h3>
+                            <p>Demandes de Congé</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background-color: rgba(58, 12, 163, 0.1); color: var(--secondary);">
+                            <i class="fas fa-money-check-alt"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="payroll-stat"></h3>
+                            <p>Masse Salariale Mensuelle</p>
                         </div>
                     </div>
                 </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Nom & Prénom</th>
-                                    <th>Poste</th>
-                                    <th>Département</th>
-                                    <th>Ancienneté</th>
-                                    <th>Statut</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="employee-table-body">
-                                <!-- Les lignes seront générées par JavaScript -->
-                            </tbody>
-                        </table>
+                
+                <!-- Employees Table (partie du tableau de bord) -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Liste des Employés</h3>
+                        <div class="filters">
+                            <div class="filter-item">
+                                <label>Département</label>
+                                <select id="department-filter">
+                                    <option>Tous</option>
+                                    <option>IT</option>
+                                    <option>Finance</option>
+                                    <option>Marketing</option>
+                                    <option>Ressources Humaines</option>
+                                </select>
+                            </div>
+                            <div class="filter-item">
+                                <label>Recherche</label>
+                                <input type="text" id="search-input" placeholder="Nom de l'employé">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Nom & Prénom</th>
+                                        <th>Poste</th>
+                                        <th>Département</th>
+                                        <th>Ancienneté</th>
+                                        <th>Statut</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="employee-table-body">
+                                    <!-- Les lignes seront générées par JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Leave Requests (partie du tableau de bord) -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Demandes de Congé Récentes</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Employé</th>
+                                        <th>Type</th>
+                                        <th>Du</th>
+                                        <th>Au</th>
+                                        <th>Statut</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="leave-requests-table-body">
+                                    <!-- Les lignes seront générées par JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page Employés -->
+            <div id="employees-page" class="page-content">
+                <div class="header">
+                    <h2>Employés</h2>
+                    <div>
+                        <button class="btn btn-primary" id="new-employee-btn-employees"><i class="fas fa-plus"></i> Nouvel Employé</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Gestion des Employés</h3>
+                    </div>
+                    <div class="card-body">
+                        <p>Contenu de la page de gestion des employés...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page Présence -->
+            <div id="presence-page" class="page-content">
+                <div class="header">
+                    <h2>Présence</h2>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Historique de Présence</h3>
+                    </div>
+                    <div class="card-body">
+                        <p>Contenu de la page de gestion de la présence...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page Congés -->
+            <div id="leave-page" class="page-content">
+                <div class="header">
+                    <h2>Congés</h2>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Demandes de Congé</h3>
+                    </div>
+                    <div class="card-body">
+                        <p>Contenu de la page de gestion des congés...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page Paie -->
+            <div id="payroll-page" class="page-content">
+                <div class="header">
+                    <h2>Paie</h2>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Fiches de Paie</h3>
+                    </div>
+                    <div class="card-body">
+                        <p>Contenu de la page de gestion de la paie...</p>
                     </div>
                 </div>
             </div>
             
-            <!-- Leave Requests -->
-            <div class="card">
-                <div class="card-header">
-                    <h3>Demandes de Congé Récentes</h3>
+            <!-- Page Rapports -->
+            <div id="reports-page" class="page-content">
+                <div class="header">
+                    <h2>Rapports</h2>
                 </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Employé</th>
-                                    <th>Type</th>
-                                    <th>Du</th>
-                                    <th>Au</th>
-                                    <th>Statut</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="leave-requests-table-body">
-                                <!-- Les lignes seront générées par JavaScript -->
-                            </tbody>
-                        </table>
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Génération de Rapports</h3>
+                    </div>
+                    <div class="card-body">
+                        <p>Contenu de la page de génération de rapports...</p>
                     </div>
                 </div>
             </div>
+
+             <!-- Page Paramètres -->
+             <div id="settings-page" class="page-content">
+                <div class="header">
+                    <h2>Paramètres</h2>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Configuration du Système</h3>
+                    </div>
+                    <div class="card-body">
+                        <p>Contenu de la page des paramètres...</p>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
     
@@ -649,6 +833,9 @@
             </div>
         </div>
     </div>
+
+    <!-- Boîte de message personnalisée -->
+    <div id="message-box"></div>
 
     <script src="app.js"></script>
 </body>
