@@ -1,3 +1,4 @@
+// Données des employés
 let employees = [
     {
         id: 1,
@@ -79,6 +80,36 @@ const payrollStat = document.getElementById('payroll-stat');
 const departmentFilter = document.getElementById('department-filter');
 const searchInput = document.getElementById('search-input');
 const newEmployeeBtn = document.getElementById('new-employee-btn');
+const messageBox = document.createElement('div');
+document.body.appendChild(messageBox);
+messageBox.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #333;
+    color: white;
+    padding: 15px;
+    border-radius: 8px;
+    z-index: 1000;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    transition: opacity 0.5s ease-in-out;
+    opacity: 0;
+    visibility: hidden;
+`;
+
+/**
+ * Fonction pour afficher des messages de notification.
+ * @param {string} message - Le message à afficher.
+ */
+function showMessage(message) {
+    messageBox.textContent = message;
+    messageBox.style.opacity = '1';
+    messageBox.style.visibility = 'visible';
+    setTimeout(() => {
+        messageBox.style.opacity = '0';
+        messageBox.style.visibility = 'hidden';
+    }, 3000);
+}
 
 /**
  * Fonction pour rendre le tableau des employés.
@@ -181,27 +212,24 @@ function filterAndSearch() {
 
 // Fonctions pour les actions des boutons (simulées)
 function newEmployee() {
-    // Remplacer par une modal ou une redirection vers un formulaire
-    alert("Fonctionnalité d'ajout d'employé en construction !");
+    showMessage("Fonctionnalité d'ajout d'employé en construction !");
 }
 
 function viewEmployee(id) {
     const employee = employees.find(e => e.id === id);
-    // Remplacer par une modal d'affichage des détails
-    alert(`Détails de l'employé : ${employee.name}, Poste: ${employee.position}`);
+    showMessage(`Détails de l'employé : ${employee.name}, Poste: ${employee.position}`);
 }
 
 function editEmployee(id) {
-    // Remplacer par une modal d'édition
-    alert(`Édition de l'employé avec l'ID : ${id}`);
+    showMessage(`Édition de l'employé avec l'ID : ${id}`);
 }
 
 function deleteEmployee(id) {
-    if (confirm("Êtes-vous sûr de vouloir supprimer cet employé ?")) {
+    if (window.confirm("Êtes-vous sûr de vouloir supprimer cet employé ?")) {
         employees = employees.filter(e => e.id !== id);
         renderEmployees(employees);
         updateStats();
-        alert("Employé supprimé !");
+        showMessage("Employé supprimé !");
     }
 }
 
@@ -211,7 +239,7 @@ function approveLeave(id) {
         request.status = "Approuvé";
         renderLeaveRequests();
         updateStats();
-        alert("Demande de congé approuvée !");
+        showMessage("Demande de congé approuvée !");
     }
 }
 
@@ -221,14 +249,14 @@ function rejectLeave(id) {
         request.status = "Rejeté";
         renderLeaveRequests();
         updateStats();
-        alert("Demande de congé rejetée !");
+        showMessage("Demande de congé rejetée !");
     }
 }
 
 function viewLeave(id) {
     const request = leaveRequests.find(r => r.id === id);
     if (request) {
-        alert(`Détails de la demande : ${request.employee}, du ${request.start} au ${request.end}`);
+        showMessage(`Détails de la demande : ${request.employee}, du ${request.start} au ${request.end}`);
     }
 }
 
@@ -246,5 +274,3 @@ document.addEventListener('DOMContentLoaded', () => {
     renderLeaveRequests();
     updateStats();
 });
-
-
